@@ -1,13 +1,16 @@
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <errno.h>
+#include <string.h>
+#include <assert.h>
 #include <fcntl.h>
-
+#include <sys/stat.h>
+#include <stdlib.h>
 #if !WIN32
 #include <unistd.h>
+#else
+#include <io.h>
 #endif
+#include <stdio.h>
 
 #include "xld.h"
 
@@ -46,7 +49,7 @@ xld_open(const char *filename) {
 		return 0;
 	}
 	
-	xld_t *xld = malloc(sizeof(xld) + count * sizeof(uint32_t));
+	xld_t *xld = (xld_t*)malloc(sizeof(xld) + count * sizeof(uint32_t));
 	
 	xld->fd = fd;
 	xld->count = count;	
@@ -101,7 +104,7 @@ xld_resource_extract_fd(xld_t *xld, int n, int fd) {
 	// reads the resource to the specified file descriptor
 	char buf[4096];
 	uint32_t t = 0;
-	ssize_t r = read(xld->fd, buf, length - t < 4096 ? length - t : 4096 );
+	int r = read(xld->fd, buf, length - t < 4096 ? length - t : 4096 );
 	while (t < length) {
 		write(fd, buf, r);
 		t+=r;
