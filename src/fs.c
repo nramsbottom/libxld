@@ -2,7 +2,7 @@
 
 #include <Windows.h>
 
-static int
+int
 fs_directory_create(const char *path) {
 
 	char *c;
@@ -23,7 +23,7 @@ fs_directory_create(const char *path) {
 	}
 }
 
-static int
+int
 fs_directory_exists(const char *path) {
 	DWORD dwAttributes = GetFileAttributes(path);
 	if (dwAttributes == INVALID_HANDLE_VALUE)
@@ -31,6 +31,16 @@ fs_directory_exists(const char *path) {
 	if (dwAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		return 1;
 	return 0;
+}
+#else
+
+int 
+fs_directory_exists(const char *path) {
+	struct stat sb;
+	if (stat(path, &sb) != 0) {
+		errx(1, "unable to stat directory");
+	}
+	return S_ISDIR(sb.st_mode);
 }
 
 #endif

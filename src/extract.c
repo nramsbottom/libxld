@@ -8,10 +8,13 @@
 #include "fs.h"
 #include "xld.h"
 
+#if WIN32
+#define errx(x, y, z) exit(x)
+#include <io.h>
+#endif
 
 void usage();
 void extract_all(const char *archive, const char *output_directory);
-int is_directory(const char *path);
 
 int
 main(int argc, char *argv[]) {
@@ -41,7 +44,7 @@ extract_all(const char *archive, const char *output_directory) {
 
 	// TODO: ensure that the output directory
 	//       is actually a directory
-	if (!is_directory(output_directory)) {
+	if (!fs_directory_exists(output_directory) || !fs_directory_exists(output_directory)) {
 		errx(1, "output is not a directory");
 	}
 
@@ -69,12 +72,4 @@ extract_all(const char *archive, const char *output_directory) {
 	}
 
 	xld_close(x);
-}
-
-int is_directory(const char *path) {
-	struct stat sb;
-	if (stat(path, &sb) != 0) {
-		errx(1, "unable to stat directory");
-	}
-	return S_ISDIR(sb.st_mode);
 }
