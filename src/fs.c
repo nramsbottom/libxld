@@ -1,7 +1,7 @@
+#if WIN32
 
 #include <Windows.h>
 
-#if WIN32
 static int
 fs_directory_create(const char *path) {
 
