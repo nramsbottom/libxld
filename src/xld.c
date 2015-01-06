@@ -4,7 +4,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+
+#if !WIN32
 #include <unistd.h>
+#endif
 
 #include "xld.h"
 
