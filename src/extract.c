@@ -5,7 +5,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include "fs.h"
 #include "xld.h"
+
 
 void usage();
 void extract_all(const char *archive, const char *output_directory);
