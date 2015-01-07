@@ -1,7 +1,7 @@
-CLFAGS=-Wall -g
+CLFAGS=-Wall -g -std=c99
 
 extract: extract.o xld.o fs.o
-	gcc -o extract extract.o xld.o
+	gcc -o extract extract.o xld.o fs.o
 extract.o: 
 	gcc $(CFLAGS) -c src/extract.c
 xld.o:
