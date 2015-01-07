@@ -49,6 +49,8 @@ xld_open(const char *filename) {
 		return 0;
 	}
 	
+	// size of the xld structure plus (count * sizeof(uint32)) for the 
+	// lengths table
 	xld_t *xld = (xld_t*)malloc(sizeof(xld) + count * sizeof(uint32_t));
 	
 	xld->fd = fd;
@@ -66,8 +68,13 @@ xld_open(const char *filename) {
 
 void
 xld_close(xld_t *xld) {
-	if (xld)
+	if (xld) {
+		// NOTE: No need to free the lengths table
+		//       because it was malloced along with
+		//       xld structure.
 		free(xld);
+		xld = NULL;
+	}
 }
 
 uint32_t
@@ -109,6 +116,11 @@ xld_resource_extract_fd(xld_t *xld, int n, int fd) {
 		write(fd, buf, r);
 		t+=r;
 		r = read(xld->fd, buf, length - t < 4096 ? length - t : 4096 );
+		// TODO: breaks on windows?
+#if WIN32
+		//if (r == 0)
+		//	break;
+#endif
 	}
 	return t;
 }

@@ -10,7 +10,10 @@
 
 #if WIN32
 #define errx(x, y, z) exit(x)
+#include <Windows.h>
 #include <io.h>
+#else
+#define MAX_PATH 260
 #endif
 
 void usage();
@@ -23,6 +26,16 @@ main(int argc, char *argv[]) {
 		usage();
 		return 1;
 	}
+
+#if _DEBUG
+
+	DWORD dwMaxPath = MAX_PATH;
+	CHAR szBuffer[MAX_PATH];
+
+	// show working directory
+	GetCurrentDirectory(dwMaxPath, szBuffer);
+	printf("Working Directory: %s\n", szBuffer);
+#endif
 
 	extract_all(argv[1], argv[2]);
 
@@ -37,15 +50,17 @@ usage() {
 void
 extract_all(const char *archive, const char *output_directory) {
 
-	char filename[128];
+	char filename[MAX_PATH];
 	int n;
 	int ofd;
 	xld_t *x = xld_open(archive);
 
-	// TODO: ensure that the output directory
-	//       is actually a directory
-	if (!fs_directory_exists(output_directory) || !fs_directory_exists(output_directory)) {
-		errx(1, "output is not a directory");
+	// this method will verify that the directory exists
+	// and that it is an actual directory.
+	if (!fs_directory_exists(output_directory)) {
+		if (!fs_directory_create(output_directory)) {
+			errx(1, "failed to create output directory");
+		}
 	}
 
 	if (!x) {
@@ -59,7 +74,7 @@ extract_all(const char *archive, const char *output_directory) {
 				output_directory,
 				n);
 	
-		ofd = open(filename, O_RDWR | O_CREAT, 0666);
+		ofd = open(filename, O_RDWR | O_CREAT, 0600);
 		
 		if (!ofd) {
 			errx(1, "unable to open %s", filename);
